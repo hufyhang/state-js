@@ -16,11 +16,10 @@ function () {
   var hasOwn = Object.prototype.hasOwnProperty;
 
   var bindState = function (conf, old, val) {
-    var enterFn = typeof conf.onEnter === 'function'
-    ? conf.onEnter
-    : function () {};
-    enterFn(val, old);
-    return conf.onLeave || function () {};
+    if (typeof conf.onEnter === 'function') {
+      conf.onEnter(val, old);
+    }
+    return conf.onLeave;
   };
 
   var addState = function (context, state) {
@@ -32,8 +31,10 @@ function () {
         set: function (val) {
           var old = context.__values[state];
 
-          context.__level(val, old);
-          context.__level = function () {};
+          if (typeof context.__leave === 'function') {
+            context.__leave(val, old);
+            context.__leave = null;
+          }
 
           context.__values[state] = val;
           var config = context.__states[state];
@@ -43,13 +44,13 @@ function () {
               case 'number':
               case 'boolean':
               if (conf.entry === val) {
-                context.__level = bindState(conf, old, val);
+                context.__leave = bindState(conf, old, val);
               }
               break;
 
               case 'function':
               if (conf.entry(val, old) === true) {
-                context.__level = bindState(conf, old, val);
+                context.__leave = bindState(conf, old, val);
               }
               break;
             }
@@ -80,7 +81,7 @@ function () {
     // Keep a reference of state configs.
     this.__states = configs;
     this.__values = {};
-    this.__level = function () {};
+    this.__leave = null;
     for (var state in this.__states) {
       if (hasOwn.call(this.__states, state)) {
         addState(this, state);
@@ -104,6 +105,13 @@ function () {
   };
 
   // TODO: change `state`
-  return State;
+  return {
+    create: function create (config) {
+      if (typeof config !== 'object') {
+        throw TypeError(config + ' is not an object');
+      }
+      return new State(config);
+    }
+  };
 }
 );
