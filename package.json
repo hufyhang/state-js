@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/hufyhang/state-js/issues"
   },
-  "homepage": "https://github.com/hufyhang/state-js"
+  "homepage": "https://github.com/hufyhang/state-js",
+  "devDependencies": {
+    "should": "^8.1.1"
+  }
 }
