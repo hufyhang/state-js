@@ -34,15 +34,17 @@ describe('StateJS', function () {
         target.value = 'CHECK: ' + val;
       }
     }],
-    info: [{
+    info: {
       value: 'default information',
-      entry: function (val) {
-        return val.toUpperCase() === 'SUPERB';
-      },
-      onEnter: function (val) {
-        target.value = 'CHECK: ' + val;
-      }
-    }]
+      states: [{
+        entry: function (val) {
+          return val.toUpperCase() === 'SUPERB';
+        },
+        onEnter: function (val) {
+          target.value = 'CHECK: ' + val;
+        }
+      }]
+    }
   };
   it('should be imported by module manager.', function () {
     should.exist(State);
@@ -78,7 +80,30 @@ describe('StateJS', function () {
   });
 
   it('should supports default/initial values.', function () {
-    should.equal(state.info, 'information');
+    should.equal(state.info, 'default information');
+  });
+
+  it('should be able to add states.', function () {
+    state.add({
+      addition: [{
+        entry: 10,
+        onEnter: function () {
+          target.value = 100;
+        }
+      }]
+    });
+
+    state.addition = 0;
+    should.notEqual(target.value, 100);
+    state.addition = 10;
+    should.equal(target.value, 100)
+  });
+
+  it('should be able to remove states.', function () {
+    state.remove('addition');
+    should.equal(state.addition, undefined);
+
+    should.equal(state.version, 2);
   });
 
 });

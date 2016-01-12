@@ -9,11 +9,26 @@ else {
 }
 })(
 function () {
+  var hasOwn = Object.prototype.hasOwnProperty;
+
+  var mixin = function mixin() {
+    var args = Array.prototype.slice.call(arguments);
+    var o = args[0];
+    var temp;
+    for (var i = 1, l = args.length; i !== l; ++i) {
+      temp = args[i];
+      for (var k in temp) {
+        if (hasOwn.call(temp, k)) {
+          o[k] = temp[k];
+        }
+      }
+    }
+    return o;
+  };
+
   var isArray = function isArray(o) {
     return Object.prototype.toString.call(o) === '[object Array]';
   };
-
-  var hasOwn = Object.prototype.hasOwnProperty;
 
   var bindState = function (conf, old, val) {
     if (typeof conf.onEnter === 'function') {
@@ -22,10 +37,9 @@ function () {
     return conf.onLeave;
   };
 
-  var addState = function (context, state) {
-    context.__values[state] = undefined;
+  var _addState = function (context, state) {
+    context.__values[state] = context.__states[state].value;
     Object.defineProperty(context, state, {
-      value: context.__states[state].value,
       get: function () {
         return context.__values[state];
       },
@@ -39,6 +53,9 @@ function () {
 
         context.__values[state] = val;
         var config = context.__states[state];
+        config = isArray(config) === true
+          ? config
+          : config.states;
         config.forEach(function (conf) {
           switch (typeof conf.entry) {
             case 'string':
@@ -85,27 +102,38 @@ function () {
     this.__leave = null;
     for (var state in this.__states) {
       if (hasOwn.call(this.__states, state)) {
-        addState(this, state);
+        _addState(this, state);
       }
     }
   }
 
   State.prototype = {
-    addState: function addState(config) {
-      addState(this, config);
-    },
-
-    addStates: function addStates(config){
+    add: function add(config){
+      if (typeof config !== 'object') {
+        throw TypeError(config + ' is not an object');
+      }
+      this.__states = mixin(this.__states, config);
       for (var state in config) {
         if (hasOwn.call(this.__states, state)) {
-          addState(this, state);
+          _addState(this, state);
         }
       }
+    },
+
+    remove: function remove(states) {
+      if (typeof states !== 'string' && !isArray(states)) {
+        throw TypeError(states + ' is neither an array or a string');
+      }
+      states = isArray(states) ? states : [states];
+      var that = this;
+      states.forEach(function (state) {
+        delete that.__states[state];
+        delete that.__values[state];
+      });
     }
 
   };
 
-  // TODO: change `state`
   return {
     create: function create (config) {
       if (typeof config !== 'object') {
