@@ -1,0 +1,30 @@
+{
+  "name": "state-js",
+  "version": "1.0.0",
+  "description": "A JavaScript finite state machine with a more natural fashion.",
+  "main": "state.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hufyhang/state-js.git"
+  },
+  "keywords": [
+    "state",
+    "state",
+    "machine",
+    "finite",
+    "state",
+    "machine"
+  ],
+  "author": "Feifei Hang <l.daniel.hung@gmail.com> (http://feifeihang.github.io/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hufyhang/state-js/issues"
+  },
+  "homepage": "https://github.com/hufyhang/state-js"
+}
