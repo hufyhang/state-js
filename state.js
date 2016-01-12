@@ -3,10 +3,10 @@
   if (typeof module !== 'undefined'
       && typeof module.exports !== 'undefined') {
     module.exports = definition();
-  }
-  else {
-    window.StateJS = definition();
-  }
+}
+else {
+  window.StateJS = definition();
+}
 })(
 function () {
   var isArray = function isArray(o) {
@@ -23,40 +23,41 @@ function () {
   };
 
   var addState = function (context, state) {
-      context.__values[state] = undefined;
-      Object.defineProperty(context, state, {
-        get: function () {
-          return context.__values[state];
-        },
-        set: function (val) {
-          var old = context.__values[state];
+    context.__values[state] = undefined;
+    Object.defineProperty(context, state, {
+      value: context.__states[state].value,
+      get: function () {
+        return context.__values[state];
+      },
+      set: function (val) {
+        var old = context.__values[state];
 
-          if (typeof context.__leave === 'function') {
-            context.__leave(val, old);
-            context.__leave = null;
-          }
-
-          context.__values[state] = val;
-          var config = context.__states[state];
-          config.forEach(function (conf) {
-            switch (typeof conf.entry) {
-              case 'string':
-              case 'number':
-              case 'boolean':
-              if (conf.entry === val) {
-                context.__leave = bindState(conf, old, val);
-              }
-              break;
-
-              case 'function':
-              if (conf.entry(val, old) === true) {
-                context.__leave = bindState(conf, old, val);
-              }
-              break;
-            }
-          });
+        if (typeof context.__leave === 'function') {
+          context.__leave(val, old);
+          context.__leave = null;
         }
-      });
+
+        context.__values[state] = val;
+        var config = context.__states[state];
+        config.forEach(function (conf) {
+          switch (typeof conf.entry) {
+            case 'string':
+            case 'number':
+            case 'boolean':
+            if (conf.entry === val) {
+              context.__leave = bindState(conf, old, val);
+            }
+            break;
+
+            case 'function':
+            if (conf.entry(val, old) === true) {
+              context.__leave = bindState(conf, old, val);
+            }
+            break;
+          }
+        });
+      }
+    });
 
 
   };

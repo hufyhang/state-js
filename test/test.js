@@ -33,6 +33,15 @@ describe('StateJS', function () {
       onEnter: function (val) {
         target.value = 'CHECK: ' + val;
       }
+    }],
+    info: [{
+      value: 'default information',
+      entry: function (val) {
+        return val.toUpperCase() === 'SUPERB';
+      },
+      onEnter: function (val) {
+        target.value = 'CHECK: ' + val;
+      }
     }]
   };
   it('should be imported by module manager.', function () {
@@ -66,6 +75,10 @@ describe('StateJS', function () {
   it('should supports function-type entry.', function () {
     state.msg = 'superb';
     should.equal(target.value, 'CHECK: superb');
+  });
+
+  it('should supports default/initial values.', function () {
+    should.equal(state.info, 'information');
   });
 
 });
